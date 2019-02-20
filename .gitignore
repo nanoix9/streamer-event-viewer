@@ -10,3 +10,8 @@ npm-debug.log
 # Docker
 Dockerfile
 docker-compose.yml
+
+dist
+.swp
+
+.vscode
