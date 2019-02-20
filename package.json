@@ -1,0 +1,33 @@
+{
+  "name": "streamer-event-viewer",
+  "version": "1.0.0",
+  "description": "Streamer event viewer which tracks your favorate streamer",
+  "main": "dist/index.js",
+  "scripts": {
+    "build": "tsc",
+    "prestart": "npm run build",
+    "postinstall": "npm run build",
+    "start": "node dist/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nanoix9/streamer-event-viewer.git"
+  },
+  "author": "Stone Fang",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/nanoix9/streamer-event-viewer/issues"
+  },
+  "homepage": "https://github.com/nanoix9/streamer-event-viewer#readme",
+  "dependencies": {
+    "ejs": "^2.6.1",
+    "express": "^4.16.4",
+    "ws": "^6.1.4"
+  },
+  "devDependencies": {
+    "@types/express": "^4.16.1",
+    "@types/ws": "^6.0.1",
+    "typescript": "^3.3.3"
+  }
+}
