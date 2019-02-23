@@ -1,5 +1,6 @@
 import Debug from "debug";
 import express, { Request } from "express";
+import expressWs from "express-ws";
 import path from "path";
 import rp from "request-promise";
 import uuid from "uuid";
@@ -16,7 +17,8 @@ const PORT = process.env.PORT || 80;
 const CLIENT_ID = process.env.CLIENT_ID;
 const REDIRECT = process.env.REDIRECT;
 
-const app = express();
+const appWs = expressWs(express());
+const app = appWs.app;
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "..", "views")));
@@ -35,6 +37,20 @@ function _show_req(req: Request) {
     JSON.stringify(req.headers)
   );
 }
+
+app.ws("/eventSocket", function(ws, req) {
+  _show_req(req);
+
+  ws.on("message", function(msg) {
+    debug("got message %s", msg);
+  });
+
+  ws.on("close", function() {
+    debug("WebSocket was closed");
+  });
+});
+
+const eventWss = appWs.getWss();
 
 app.get("/hello", (req, res) => {
   res.send("Hello world!");
@@ -118,6 +134,11 @@ app.get("/onEvent", function(req, res) {
 
 app.post("/onEvent", function(req, res) {
   _show_req(req);
+
+  eventWss.clients.forEach(function(client) {
+    client.send(JSON.stringify(req.body));
+  });
+
   res.send("");
 });
 

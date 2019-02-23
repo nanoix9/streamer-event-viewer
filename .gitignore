@@ -13,5 +13,7 @@ docker-compose.yml
 
 dist
 .swp
+*.log
+*.tmp
 
 .vscode
