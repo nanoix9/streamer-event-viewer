@@ -15,6 +15,7 @@
         <h2>Add your favorate streamer:</h2>
         <form action="/subscribe">
           <input type="text" name="favorteStreamerName" value="Streamer Name"> 
+          <input id="placeholder-access-token" type="hidden" name="accessToken" value="" />
           <input type="submit" value="Add">
         </form>
       </div>
@@ -67,6 +68,7 @@
         httpGetAsync("https://api.twitch.tv/helix/users", function(data) {
           // console.debug(data);
           document.getElementById("login-user-name").innerHTML = data.data[0].login
+          document.getElementById("placeholder-access-token").value=accessToken
         })
       } else {
         login.style.display = "block";
