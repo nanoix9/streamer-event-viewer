@@ -42,7 +42,7 @@ app.get("/", function(req, res) {
     clientId: CLIENT_ID,
     loginRedirectUrl: `${REDIRECT}`,
     responseType: "token",
-    scope: "user:edit",
+    scope: "user:read:email",
     state: uuid.v4()
   });
 });
@@ -81,9 +81,11 @@ app.get("/subscribe", function(req, res) {
         json: true,
         body: {
           "hub.mode": "subscribe",
-          "hub.topic": `https://api.twitch.tv/helix/users/follows?first=1&from_id=${userId}`,
-          "hub.callback": `${REDIRECT}/onFollow`,
-          "hub.lease_seconds": (864000 / 10000) | 0,
+          // "hub.topic": `https://api.twitch.tv/helix/users/follows?first=1&from_id=${userId}`,
+          "hub.topic": `https://api.twitch.tv/helix/users?id=${userId}`,
+          //   "hub.callback": `${REDIRECT}/onFollow`,
+          "hub.callback": `${REDIRECT}/onEvent`,
+          "hub.lease_seconds": (864000 / 1000) | 0,
           "hub.secret": "eF2pK3"
         }
       };
@@ -99,7 +101,7 @@ app.get("/subscribe", function(req, res) {
     });
 });
 
-app.get("/onFollow", function(req, res) {
+app.get("/onEvent", function(req, res) {
   _show_req(req);
   const mode = req.query["hub.mode"];
   if (mode == "subscribe") {
