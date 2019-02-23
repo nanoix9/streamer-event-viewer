@@ -9,23 +9,32 @@
     </main>
 
     <script type="text/javascript">
-        const wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
-        const url = `${wsProtocol}://${location.host}/eventSocket`;
-        console.debug('connect to ', url);
-        const ws = new WebSocket(url);
-        
-        ws.onopen = function () {
-            ws.send('client connected'); // Send the message 'Ping' to the server
-        };
+        function setupWebSocket(){
+            const wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
+            const url = `${wsProtocol}://${location.host}/eventSocket`;
+            console.debug('connect to ', url);
+            const ws = new WebSocket(url);
+            
+            ws.onopen = function () {
+                ws.send('client connected');
+            };
 
-        ws.onerror = function (error) {
-            console.log('WebSocket Error ', error);
-        };
+            ws.onerror = function (error) {
+                console.log('WebSocket Error ', error);
+            };
 
-        ws.onmessage = function (e) {
-            console.log('message: ', e);
-            console.log('message data: ', JSON.parse(e.data));
-        };
+            ws.onmessage = function (e) {
+                console.log('message: ', e);
+                console.log('message data: ', JSON.parse(e.data));
+            };
+
+            ws.onclose = function(){
+                console.log('client is to be closed');
+                setTimeout(setupWebSocket, 200);
+            };
+        }
+
+        setupWebSocket();
 
     </script>
   </body>
