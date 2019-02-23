@@ -20,14 +20,19 @@ const app = express();
 
 app.set("view engine", "ejs");
 app.use(express.static(path.join(__dirname, "..", "views")));
+app.use(express.json());
+app.use(express.urlencoded());
 
 function _show_req(req: Request) {
   debug(
-    "request on %s://%s%s, %s",
+    "request [%s] %s://%s%s, \nparams: %s, \nbody: %s, \nheaders: %s",
+    req.method,
     req.protocol,
     req.headers.host,
     req.originalUrl,
-    JSON.stringify(req.query)
+    JSON.stringify(req.query),
+    JSON.stringify(req.body),
+    JSON.stringify(req.headers)
   );
 }
 
@@ -109,6 +114,11 @@ app.get("/onEvent", function(req, res) {
   } else {
     res.send("");
   }
+});
+
+app.post("/onEvent", function(req, res) {
+  _show_req(req);
+  res.send("");
 });
 
 app.get("/streamer", function(req, res) {
