@@ -3,11 +3,18 @@ import express, { Request } from "express";
 import path from "path";
 import rp from "request-promise";
 import uuid from "uuid";
+import dotenv from "dotenv";
 
 const debug = Debug("streamer-event-viewer");
 
-const PORT = process.env.PORT || 5000;
-const CLIENT_ID = "izn0cq219lfj27aa4xksew3vo4vyxt";
+if (process.env.NODE_ENV !== "production") {
+  debug("load from .env ...");
+  dotenv.load();
+}
+
+const PORT = process.env.PORT || 80;
+const CLIENT_ID = process.env.CLIENT_ID;
+const REDIRECT = process.env.REDIRECT;
 
 const app = express();
 
@@ -33,7 +40,7 @@ app.get("/", function(req, res) {
 
   res.render("pages/index", {
     clientId: CLIENT_ID,
-    loginRedirectUrl: `http://localhost:${PORT}`,
+    loginRedirectUrl: `${REDIRECT}`,
     responseType: "token",
     scope: "user:edit",
     state: uuid.v4()
@@ -75,7 +82,7 @@ app.get("/subscribe", function(req, res) {
         body: {
           "hub.mode": "subscribe",
           "hub.topic": `https://api.twitch.tv/helix/users/follows?first=1&from_id=${userId}`,
-          "hub.callback": "https://warm-plains-84315.herokuapp.com/onFollow",
+          "hub.callback": `${REDIRECT}/onFollow`,
           "hub.lease_seconds": (864000 / 10000) | 0,
           "hub.secret": "eF2pK3"
         }
