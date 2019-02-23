@@ -1,0 +1,77 @@
+<!-- views/pages/index.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+  <body class="container">
+
+    <main>
+      <div id="login">
+        <h1>Login</h1>
+          <button onclick="loginWithTwitch()">Login with Twitch!</button>
+      </div>
+
+      <div id="welcome" style="display: none">
+        <h1>Welcome <span id="login-user-name"></span>!</h1>
+        <h2>Add your favorate streamer:</h2>
+        <form action="/subscribe">
+          <input type="text" name="favorteStreamerName" value="Streamer Name"> 
+          <input type="submit" value="Add">
+        </form>
+      </div>
+    </main>
+
+    <script type="text/javascript">
+      function getHashParams() {
+        var hash = window.location.hash.substr(1);
+
+        var result = hash.split('&').reduce(function (result, item) {
+            var parts = item.split('=');
+            result[parts[0]] = parts[1];
+            return result;
+        }, {});
+        return result;
+      }
+
+      const hashParams = getHashParams();
+      const accessToken = hashParams.access_token;
+
+      function httpGetAsync(theUrl, callback)
+      {
+          var xmlHttp = new XMLHttpRequest();
+          xmlHttp.onreadystatechange = function() { 
+              if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+                  callback(JSON.parse(xmlHttp.responseText));
+          }
+          xmlHttp.open("GET", theUrl, true); // true for asynchronous 
+          xmlHttp.setRequestHeader('Authorization', 'Bearer ' + accessToken);
+          xmlHttp.send(null);
+      }
+
+      function loginWithTwitch() {
+        location.href =
+          "https://id.twitch.tv/oauth2/authorize" +
+          "?client_id=<%- clientId %>" +
+          "&redirect_uri=<%- loginRedirectUrl %>" +
+          "&response_type=token" +
+          "&scope=<%- scope %>" + 
+          "&state=<%- state %>";
+        // console.debug(location.href);
+      }
+
+      var login = document.getElementById("login");
+      var welcome = document.getElementById("welcome");
+      if (accessToken) {
+        login.style.display = "none";
+        welcome.style.display = "block";
+
+        httpGetAsync("https://api.twitch.tv/helix/users", function(data) {
+          // console.debug(data);
+          document.getElementById("login-user-name").innerHTML = data.data[0].login
+        })
+      } else {
+        login.style.display = "block";
+        welcome.style.display = "none";
+      }
+    </script>
+  </body>
+</html>
