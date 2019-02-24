@@ -103,6 +103,7 @@ const subscribeCallbacks = [
   {
     path: "/onUserEdit",
     topicSuffix: (userId: string) => `users?id=${userId}`,
+    getEventUser: (payload: any) => payload.data[0].login,
     postProc: (payload: any) => ({
       message: `user ${payload.data[0].login} modified profile`
     })
@@ -110,6 +111,7 @@ const subscribeCallbacks = [
   {
     path: "/onFollowing",
     topicSuffix: (userId: string) => `users/follows?first=1&from_id=${userId}`,
+    getEventUser: (payload: any) => payload.data[0].from_name,
     postProc: (payload: any) => ({
       message: `${payload.data[0].from_name} followed ${
         payload.data[0].to_name
@@ -119,6 +121,7 @@ const subscribeCallbacks = [
   {
     path: "/onFollower",
     topicSuffix: (userId: string) => `users/follows?first=1&to_id=${userId}`,
+    getEventUser: (payload: any) => payload.data[0].to_name,
     postProc: (payload: any) => ({
       message: `${payload.data[0].from_name} followed ${
         payload.data[0].to_name
@@ -142,8 +145,12 @@ for (var cb of subscribeCallbacks) {
     _show_req(req);
 
     eventWss.clients.forEach(function(client) {
-      debug("send to ws with user name:", (client as any).subscribedUser);
-      client.send(JSON.stringify(cb.postProc(req.body)));
+      let clientUser = (client as any).subscribedUser;
+      debug("send to ws with user name:", clientUser);
+      if (clientUser == cb.getEventUser(req.body)) {
+        debug("username matched, send");
+        client.send(JSON.stringify(cb.postProc(req.body)));
+      }
     });
 
     res.send("");
