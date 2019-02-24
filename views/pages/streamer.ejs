@@ -3,12 +3,31 @@
   <body class="container">
 
     <main>
-      <div id="login">
-        <h1>Events for <%- subsribedUsername%></h1>
+      <div id="twitch-embed"></div>
+      <div id="user-events">
+        <h1>Events for <span id="subscribe-user-name"></span></h1>
       </div>
     </main>
 
+    <script src="https://embed.twitch.tv/embed/v1.js"></script>
+    
     <script type="text/javascript">
+        const queryDict = {}
+        location.search.substr(1).split("&")
+            .forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
+
+        const user = queryDict.username;
+        
+        // enmbed Twitch live stream and chat 
+        new Twitch.Embed("twitch-embed", {
+            width: 1080,
+            height: 450,
+            channel: user
+        });
+
+        document.getElementById("subscribe-user-name").innerHTML = user;
+
+        // set up web socket connection
         function setupWebSocket(){
             const wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
             const url = `${wsProtocol}://${location.host}/eventSocket`;
@@ -35,7 +54,6 @@
         }
 
         setupWebSocket();
-
     </script>
   </body>
 </html>

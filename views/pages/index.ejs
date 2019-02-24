@@ -65,10 +65,11 @@
         login.style.display = "none";
         welcome.style.display = "block";
 
+        document.getElementById("placeholder-access-token").value=accessToken
+
         httpGetAsync("https://api.twitch.tv/helix/users", function(data) {
           // console.debug(data);
           document.getElementById("login-user-name").innerHTML = data.data[0].login
-          document.getElementById("placeholder-access-token").value=accessToken
         })
       } else {
         login.style.display = "block";
