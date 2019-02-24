@@ -3,20 +3,24 @@
 <!DOCTYPE html>
 <html lang="en">
   <body class="container">
-
     <main>
       <div id="login">
         <h1>Login</h1>
-          <button onclick="loginWithTwitch()">Login with Twitch!</button>
+        <button onclick="loginWithTwitch()">Login with Twitch!</button>
       </div>
 
       <div id="welcome" style="display: none">
         <h1>Welcome <span id="login-user-name"></span>!</h1>
         <h2>Add your favorate streamer:</h2>
         <form action="/subscribe">
-          <input type="text" name="favorteStreamerName" value="Streamer Name"> 
-          <input id="placeholder-access-token" type="hidden" name="accessToken" value="" />
-          <input type="submit" value="Add">
+          <input type="text" name="favorteStreamerName" value="Streamer Name" />
+          <input
+            id="placeholder-access-token"
+            type="hidden"
+            name="accessToken"
+            value=""
+          />
+          <input type="submit" value="Add" />
         </form>
       </div>
     </main>
@@ -25,10 +29,10 @@
       function getHashParams() {
         var hash = window.location.hash.substr(1);
 
-        var result = hash.split('&').reduce(function (result, item) {
-            var parts = item.split('=');
-            result[parts[0]] = parts[1];
-            return result;
+        var result = hash.split("&").reduce(function(result, item) {
+          var parts = item.split("=");
+          result[parts[0]] = parts[1];
+          return result;
         }, {});
         return result;
       }
@@ -36,16 +40,15 @@
       var hashParams = getHashParams();
       var accessToken = hashParams.access_token;
 
-      function httpGetAsync(theUrl, callback)
-      {
-          var xmlHttp = new XMLHttpRequest();
-          xmlHttp.onreadystatechange = function() { 
-              if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-                  callback(JSON.parse(xmlHttp.responseText));
-          }
-          xmlHttp.open("GET", theUrl, true); // true for asynchronous 
-          xmlHttp.setRequestHeader('Authorization', 'Bearer ' + accessToken);
-          xmlHttp.send(null);
+      function httpGetAsync(theUrl, callback) {
+        var xmlHttp = new XMLHttpRequest();
+        xmlHttp.onreadystatechange = function() {
+          if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
+            callback(JSON.parse(xmlHttp.responseText));
+        };
+        xmlHttp.open("GET", theUrl, true); // true for asynchronous
+        xmlHttp.setRequestHeader("Authorization", "Bearer " + accessToken);
+        xmlHttp.send(null);
       }
 
       function loginWithTwitch() {
@@ -54,7 +57,7 @@
           "?client_id=<%- clientId %>" +
           "&redirect_uri=<%- loginRedirectUrl %>" +
           "&response_type=token" +
-          "&scope=<%- scope %>" + 
+          "&scope=<%- scope %>" +
           "&state=<%- state %>";
         // console.debug(location.href);
       }
@@ -65,12 +68,13 @@
         login.style.display = "none";
         welcome.style.display = "block";
 
-        document.getElementById("placeholder-access-token").value=accessToken
+        document.getElementById("placeholder-access-token").value = accessToken;
 
         httpGetAsync("https://api.twitch.tv/helix/users", function(data) {
           // console.debug(data);
-          document.getElementById("login-user-name").innerHTML = data.data[0].login
-        })
+          document.getElementById("login-user-name").innerHTML =
+            data.data[0].login;
+        });
       } else {
         login.style.display = "block";
         welcome.style.display = "none";

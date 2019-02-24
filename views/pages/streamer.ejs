@@ -2,23 +2,22 @@
 <html lang="en">
   <head>
     <style>
-        ul#user-event-list {
-            list-style-type: square;
-            max-height: 250px;
-            max-width: 600px;
-            margin: 0;
-            overflow-y: auto;
-            text-indent: 10px;
-            background: #efeef1;
-        }
+      ul#user-event-list {
+        list-style-type: square;
+        max-height: 250px;
+        max-width: 600px;
+        margin: 0;
+        overflow-y: auto;
+        text-indent: 10px;
+        background: #efeef1;
+      }
 
-        ul#user-event-list li {
-            line-height: 25px;
-        }
+      ul#user-event-list li {
+        line-height: 25px;
+      }
     </style>
   </head>
   <body class="container">
-
     <main>
       <div id="twitch-embed"></div>
       <div id="user-events">
@@ -28,61 +27,65 @@
     </main>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
-    
-    <script type="text/javascript">
-        var queryDict = {}
-        location.search.substr(1).split("&")
-            .forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
 
-        var user = queryDict.username;
-        
-        // enmbed Twitch live stream and chat 
-        new Twitch.Embed("twitch-embed", {
-            width: 1080,
-            height: 450,
-            channel: user
+    <script type="text/javascript">
+      var queryDict = {};
+      location.search
+        .substr(1)
+        .split("&")
+        .forEach(function(item) {
+          queryDict[item.split("=")[0]] = item.split("=")[1];
         });
 
-        document.getElementById("subscribe-user-name").innerHTML = user;
+      var user = queryDict.username;
 
-        // set up web socket connection
-        function setupWebSocket(){
-            var wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
-            var url = `${wsProtocol}://${location.host}/eventSocket/${user}`;
-            console.debug('connect to ', url);
-            var ws = new WebSocket(url);
-            
-            ws.onopen = function () {
-                ws.send('client connected');
-            };
+      // enmbed Twitch live stream and chat
+      new Twitch.Embed("twitch-embed", {
+        width: 1080,
+        height: 450,
+        channel: user
+      });
 
-            ws.onerror = function (error) {
-                console.log('WebSocket Error ', error);
-            };
+      document.getElementById("subscribe-user-name").innerHTML = user;
 
-            ws.onmessage = function (e) {
-                console.log('message: ', e);
-                var payload = JSON.parse(e.data);
-                console.log('message data: ', payload);
-                displayUserEvent(payload)
-            };
+      // set up web socket connection
+      function setupWebSocket() {
+        var wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
+        var url = `${wsProtocol}://${location.host}/eventSocket/${user}`;
+        console.debug("connect to ", url);
+        var ws = new WebSocket(url);
 
-            ws.onclose = function(){
-                console.log('client is to be closed');
-                setTimeout(setupWebSocket, 200);
-            };
-        }
+        ws.onopen = function() {
+          ws.send("client connected");
+        };
 
-        function displayUserEvent(event) {
-            var ul = document.getElementById('user-event-list');
-            var node = document.createElement('li');
-            node.appendChild(document.createTextNode(event.message));
-            ul.appendChild(node);
+        ws.onerror = function(error) {
+          console.log("WebSocket Error ", error);
+        };
 
-            ul.scrollTop = ul.scrollHeight - ul.clientHeight;
-        }
+        ws.onmessage = function(e) {
+          console.log("message: ", e);
+          var payload = JSON.parse(e.data);
+          console.log("message data: ", payload);
+          displayUserEvent(payload);
+        };
 
-        setupWebSocket();
+        ws.onclose = function() {
+          console.log("client is to be closed");
+          setTimeout(setupWebSocket, 200);
+        };
+      }
+
+      function displayUserEvent(event) {
+        var ul = document.getElementById("user-event-list");
+        var node = document.createElement("li");
+        node.appendChild(document.createTextNode(event.message));
+        ul.appendChild(node);
+
+        ul.scrollTop = ul.scrollHeight - ul.clientHeight;
+      }
+
+      setupWebSocket();
     </script>
   </body>
 </html>
