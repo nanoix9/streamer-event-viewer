@@ -103,40 +103,52 @@ const subscribeCallbacks = [
   {
     path: "/onUserEdit",
     topicSuffix: (userId: string) => `users?id=${userId}`,
-    getEventUser: (payload: any) => payload.data[0].login,
-    postProc: (payload: any) => ({
-      message: `user ${payload.data[0].login} modified profile`
+    getEventUser: (event: any) => event.login,
+    postProc: (event: any) => ({
+      message: `${event.login} changes profile`
     })
   },
   {
     path: "/onFollowing",
     topicSuffix: (userId: string) => `users/follows?first=1&from_id=${userId}`,
-    getEventUser: (payload: any) => payload.data[0].from_name,
-    postProc: (payload: any) => ({
-      message: `${payload.data[0].from_name} followed ${
-        payload.data[0].to_name
-      }`
+    getEventUser: (event: any) => event.from_name,
+    postProc: (event: any) => ({
+      message: `${event.from_name} starts to follow ${event.to_name}`
     })
   },
   {
     path: "/onFollower",
     topicSuffix: (userId: string) => `users/follows?first=1&to_id=${userId}`,
-    getEventUser: (payload: any) => payload.data[0].to_name,
-    postProc: (payload: any) => ({
-      message: `${payload.data[0].from_name} followed ${
-        payload.data[0].to_name
-      }`
+    getEventUser: (event: any) => event.to_name,
+    postProc: (event: any) => ({
+      message: `${event.to_name} has a new follower ${event.from_name}`
+    })
+  },
+  {
+    path: "/onStream",
+    topicSuffix: (userId: string) => `streams?user_id=${userId}`,
+    getEventUser: (event: any) => event.user_name,
+    postProc: (event: any) => ({
+      message: `${event.user_name} changes stream`
     })
   }
 ];
 
-for (var cb of subscribeCallbacks) {
+for (let cb of subscribeCallbacks) {
   app.get(cb.path, function(req, res) {
     _show_req(req);
     const mode = req.query["hub.mode"];
     if (mode == "subscribe") {
       res.send(req.query["hub.challenge"]);
     } else {
+      if (mode == "denied") {
+        console.error(
+          "failed to subscribe topic",
+          req.query["hub.topic"],
+          "reason:",
+          req.query["hub.reason"]
+        );
+      }
       res.send("");
     }
   });
@@ -144,14 +156,21 @@ for (var cb of subscribeCallbacks) {
   app.post(cb.path, function(req, res) {
     _show_req(req);
 
-    eventWss.clients.forEach(function(client) {
-      let clientUser = (client as any).subscribedUser;
-      debug("send to ws with user name:", clientUser);
-      if (clientUser == cb.getEventUser(req.body)) {
-        debug("username matched, send");
-        client.send(JSON.stringify(cb.postProc(req.body)));
+    function _sendEvent(event: any) {
+      for (let client of eventWss.clients) {
+        let clientUser = (client as any).subscribedUser;
+        if (clientUser == cb.getEventUser(event)) {
+          debug("username matched, send");
+          client.send(JSON.stringify(cb.postProc(event)));
+        }
       }
-    });
+    }
+
+    if (req.body && req.body.data) {
+      for (let event of req.body.data) {
+        _sendEvent(event);
+      }
+    }
 
     res.send("");
   });
