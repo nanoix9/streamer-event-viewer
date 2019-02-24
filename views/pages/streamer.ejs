@@ -48,7 +48,7 @@
         // set up web socket connection
         function setupWebSocket(){
             var wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
-            var url = `${wsProtocol}://${location.host}/eventSocket`;
+            var url = `${wsProtocol}://${location.host}/eventSocket/${user}`;
             console.debug('connect to ', url);
             var ws = new WebSocket(url);
             

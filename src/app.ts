@@ -31,8 +31,11 @@ function _show_req(req: Request) {
   );
 }
 
-app.ws("/eventSocket", function(ws, req) {
+app.ws("/eventSocket/:user", function(ws, req) {
   _show_req(req);
+
+  const tmp: any = ws;
+  tmp.subscribedUser = req.params.user;
 
   ws.on("message", function(msg) {
     debug("got message %s", msg);
@@ -139,6 +142,7 @@ for (var cb of subscribeCallbacks) {
     _show_req(req);
 
     eventWss.clients.forEach(function(client) {
+      debug("send to ws with user name:", (client as any).subscribedUser);
       client.send(JSON.stringify(cb.postProc(req.body)));
     });
 
