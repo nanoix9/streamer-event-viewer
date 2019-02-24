@@ -95,8 +95,58 @@ app.get("/subscribe", function(req, res) {
     });
 });
 
+const subscribeCallbacks = [
+  {
+    path: "/onUserEdit",
+    topicSuffix: (userId: string) => `users?id=${userId}`,
+    postProc: (payload: any) => ({
+      message: `user ${payload.data[0].login} modified profile`
+    })
+  },
+  {
+    path: "/onFollowing",
+    topicSuffix: (userId: string) => `users/follows?first=1&from_id=${userId}`,
+    postProc: (payload: any) => ({
+      message: `${payload.data[0].from_name} followed ${
+        payload.data[0].to_name
+      }`
+    })
+  },
+  {
+    path: "/onFollower",
+    topicSuffix: (userId: string) => `users/follows?first=1&to_id=${userId}`,
+    postProc: (payload: any) => ({
+      message: `${payload.data[0].from_name} followed ${
+        payload.data[0].to_name
+      }`
+    })
+  }
+];
+
+for (var cb of subscribeCallbacks) {
+  app.get(cb.path, function(req, res) {
+    _show_req(req);
+    const mode = req.query["hub.mode"];
+    if (mode == "subscribe") {
+      res.send(req.query["hub.challenge"]);
+    } else {
+      res.send("");
+    }
+  });
+
+  app.post(cb.path, function(req, res) {
+    _show_req(req);
+
+    eventWss.clients.forEach(function(client) {
+      client.send(cb.postProc(req.body));
+    });
+
+    res.send("");
+  });
+}
+
 function subscribeUserEvent(userId: string, token: string) {
-  function _subscribeTopic(suffix: string) {
+  function _subscribeTopic(suffix: string, path: string) {
     const opt = {
       url: "https://api.twitch.tv/helix/webhooks/hub",
       method: "POST",
@@ -109,7 +159,7 @@ function subscribeUserEvent(userId: string, token: string) {
       body: {
         "hub.mode": "subscribe",
         "hub.topic": `https://api.twitch.tv/helix/${suffix}`,
-        "hub.callback": `${REDIRECT}/onEvent`,
+        "hub.callback": `${REDIRECT}${path}`,
         "hub.lease_seconds": (864000 / 1000) | 0,
         "hub.secret": "eF2pK3"
       }
@@ -118,34 +168,12 @@ function subscribeUserEvent(userId: string, token: string) {
     return rp(opt);
   }
 
-  const suffices: string[] = [
-    `users?id=${userId}`,
-    `users/follows?first=1&from_id=${userId}`,
-    `users/follows?first=1&to_id=${userId}`
-  ];
-
-  return Promise.all(suffices.map(p => _subscribeTopic(p)));
+  return Promise.all(
+    subscribeCallbacks.map(cb =>
+      _subscribeTopic(cb.topicSuffix(userId), cb.path)
+    )
+  );
 }
-
-app.get("/onEvent", function(req, res) {
-  _show_req(req);
-  const mode = req.query["hub.mode"];
-  if (mode == "subscribe") {
-    res.send(req.query["hub.challenge"]);
-  } else {
-    res.send("");
-  }
-});
-
-app.post("/onEvent", function(req, res) {
-  _show_req(req);
-
-  eventWss.clients.forEach(function(client) {
-    client.send(JSON.stringify(req.body));
-  });
-
-  res.send("");
-});
 
 app.get("/streamer", function(req, res) {
   if (!req.query.username) {
