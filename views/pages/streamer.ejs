@@ -1,22 +1,40 @@
 <!DOCTYPE html>
 <html lang="en">
+  <head>
+    <style>
+        ul#user-event-list {
+            list-style-type: square;
+            max-height: 250px;
+            max-width: 600px;
+            margin: 0;
+            overflow-y: auto;
+            text-indent: 10px;
+            background: #efeef1;
+        }
+
+        ul#user-event-list li {
+            line-height: 25px;
+        }
+    </style>
+  </head>
   <body class="container">
 
     <main>
       <div id="twitch-embed"></div>
       <div id="user-events">
         <h1>Events for <span id="subscribe-user-name"></span></h1>
+        <ul id="user-event-list"></ul>
       </div>
     </main>
 
     <script src="https://embed.twitch.tv/embed/v1.js"></script>
     
     <script type="text/javascript">
-        const queryDict = {}
+        var queryDict = {}
         location.search.substr(1).split("&")
             .forEach(function(item) {queryDict[item.split("=")[0]] = item.split("=")[1]});
 
-        const user = queryDict.username;
+        var user = queryDict.username;
         
         // enmbed Twitch live stream and chat 
         new Twitch.Embed("twitch-embed", {
@@ -29,10 +47,10 @@
 
         // set up web socket connection
         function setupWebSocket(){
-            const wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
-            const url = `${wsProtocol}://${location.host}/eventSocket`;
+            var wsProtocol = location.protocol.startsWith("https") ? "wss" : "ws";
+            var url = `${wsProtocol}://${location.host}/eventSocket`;
             console.debug('connect to ', url);
-            const ws = new WebSocket(url);
+            var ws = new WebSocket(url);
             
             ws.onopen = function () {
                 ws.send('client connected');
@@ -44,13 +62,22 @@
 
             ws.onmessage = function (e) {
                 console.log('message: ', e);
-                console.log('message data: ', JSON.parse(e.data));
+                var payload = JSON.parse(e.data);
+                console.log('message data: ', payload);
+                displayUserEvent(payload)
             };
 
             ws.onclose = function(){
                 console.log('client is to be closed');
                 setTimeout(setupWebSocket, 200);
             };
+        }
+
+        function displayUserEvent(event) {
+            var ul = document.getElementById('user-event-list');
+            var node = document.createElement('li');
+            node.appendChild(document.createTextNode(JSON.stringify(event)));
+            ul.appendChild(node);
         }
 
         setupWebSocket();
