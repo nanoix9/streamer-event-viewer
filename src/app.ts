@@ -84,27 +84,7 @@ app.get("/subscribe", function(req, res) {
       return userId;
     })
     .then(function(userId) {
-      const opt = {
-        url: "https://api.twitch.tv/helix/webhooks/hub",
-        method: "POST",
-        headers: {
-          "Client-ID": CLIENT_ID,
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json"
-        },
-        json: true,
-        body: {
-          "hub.mode": "subscribe",
-          // "hub.topic": `https://api.twitch.tv/helix/users/follows?first=1&from_id=${userId}`,
-          "hub.topic": `https://api.twitch.tv/helix/users?id=${userId}`,
-          //   "hub.callback": `${REDIRECT}/onFollow`,
-          "hub.callback": `${REDIRECT}/onEvent`,
-          "hub.lease_seconds": (864000 / 1000) | 0,
-          "hub.secret": "eF2pK3"
-        }
-      };
-      debug("subscribe", opt);
-      return rp(opt);
+      return subscribeUserEvent(userId, token);
     })
     .then(function() {
       res.redirect(`/streamer?username=${uname}`);
@@ -114,6 +94,38 @@ app.get("/subscribe", function(req, res) {
       res.redirect("/error");
     });
 });
+
+function subscribeUserEvent(userId: string, token: string) {
+  function _subscribeTopic(suffix: string) {
+    const opt = {
+      url: "https://api.twitch.tv/helix/webhooks/hub",
+      method: "POST",
+      headers: {
+        "Client-ID": CLIENT_ID,
+        Authorization: `Bearer ${token}`,
+        "Content-Type": "application/json"
+      },
+      json: true,
+      body: {
+        "hub.mode": "subscribe",
+        "hub.topic": `https://api.twitch.tv/helix/${suffix}`,
+        "hub.callback": `${REDIRECT}/onEvent`,
+        "hub.lease_seconds": (864000 / 1000) | 0,
+        "hub.secret": "eF2pK3"
+      }
+    };
+    debug("subscribe", opt);
+    return rp(opt);
+  }
+
+  const suffices: string[] = [
+    `users?id=${userId}`,
+    `users/follows?first=1&from_id=${userId}`,
+    `users/follows?first=1&to_id=${userId}`
+  ];
+
+  return Promise.all(suffices.map(p => _subscribeTopic(p)));
+}
 
 app.get("/onEvent", function(req, res) {
   _show_req(req);
