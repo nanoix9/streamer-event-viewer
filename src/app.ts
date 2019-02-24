@@ -95,6 +95,7 @@ app.get("/subscribe", function(req, res) {
     });
 });
 
+// add subscription callback endpoints
 const subscribeCallbacks = [
   {
     path: "/onUserEdit",
@@ -138,7 +139,7 @@ for (var cb of subscribeCallbacks) {
     _show_req(req);
 
     eventWss.clients.forEach(function(client) {
-      client.send(cb.postProc(req.body));
+      client.send(JSON.stringify(cb.postProc(req.body)));
     });
 
     res.send("");

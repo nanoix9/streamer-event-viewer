@@ -76,7 +76,7 @@
         function displayUserEvent(event) {
             var ul = document.getElementById('user-event-list');
             var node = document.createElement('li');
-            node.appendChild(document.createTextNode(JSON.stringify(event)));
+            node.appendChild(document.createTextNode(event.message));
             ul.appendChild(node);
         }
 
