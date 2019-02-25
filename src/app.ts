@@ -18,6 +18,7 @@ app.use(express.static(path.join(__dirname, "..", "views")));
 app.use(express.json());
 app.use(express.urlencoded());
 
+// helper function for debugging printing request details
 function _show_req(req: Request) {
   debug(
     "request [%s] %s://%s%s, \nparams: %s, \nbody: %s, \nheaders: %s",
@@ -31,6 +32,7 @@ function _show_req(req: Request) {
   );
 }
 
+// setup web socket server
 app.ws("/eventSocket/:user", function(ws, req) {
   _show_req(req);
 
@@ -48,10 +50,7 @@ app.ws("/eventSocket/:user", function(ws, req) {
 
 const eventWss = appWs.getWss();
 
-app.get("/hello", (req, res) => {
-  res.send("Hello world!");
-});
-
+// setup http routes
 app.get("/", function(req, res) {
   _show_req(req);
 
@@ -64,12 +63,17 @@ app.get("/", function(req, res) {
   });
 });
 
+// subscribe Twitch topics of a user. It contains three steps:
+//   1. get user ID
+//   2. subscribe all topics of a user
+//   3. redirect to streamer page
 app.get("/subscribe", function(req, res) {
   _show_req(req);
 
   const uname = req.query.favorteStreamerName;
   const token = req.query.accessToken;
 
+  // first, get user ID
   const opt = {
     url: `https://api.twitch.tv/helix/users?login=${uname}`,
     headers: {
@@ -134,6 +138,9 @@ const subscribeCallbacks = [
   }
 ];
 
+// Create callback endpoints. According to Twitch document,
+// each endpoint should handle GET request as subscription callback,
+// and POST requests to handle events
 for (let cb of subscribeCallbacks) {
   app.get(cb.path, function(req, res) {
     _show_req(req);
@@ -176,6 +183,7 @@ for (let cb of subscribeCallbacks) {
   });
 }
 
+// send request to subscribe user topics
 function subscribeUserEvent(userId: string, token: string) {
   function _subscribeTopic(suffix: string, path: string) {
     const opt = {
