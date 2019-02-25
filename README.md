@@ -4,7 +4,7 @@
 
 You can watch the [video for demo](doc/demo.mp4)
 
-open <http://warm-plains-84315.herokuapp.com/> in your browser and do the following steps:
+open <https://warm-plains-84315.herokuapp.com/> in your browser and do the following steps:
 
 1. Click "Login with Twitch!" button and you will be directed to the Twitch login page
 
@@ -79,7 +79,6 @@ This project contains two pages: a home page and a streamer page.
 # Answers for Additional Questions:
 
 > 1. How would you deploy the above on AWS? (ideally a rough architecture diagram will help)
-
 
 To be honest, I don't have much experience on AWS. But I think since this is a single Node.js application, 
 it can be easily deployed to AWS by Elastic Beanstalk with just some configuration and commands
