@@ -2,6 +2,8 @@
 
 ## Live demo
 
+You can watch the [video for demo](doc/demo.mp4)
+
 open <http://warm-plains-84315.herokuapp.com/> in your browser and do the following steps:
 
 1. Click "Login with Twitch!" button and you will be directed to the Twitch login page
