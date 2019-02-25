@@ -54,11 +54,11 @@ This project contains two pages: a home page and a streamer page.
 
     1.2 You can subscribe to a streamer. On this, this application will subscribe the
         topics of that user, and then waiting for events that will be sent by HTTP request
-        from Twitch to previous specified callback endpoints
+        from Twitch to previously established callback endpoints
 
 2. Streamer page
 
-    2.1 This page embeds a twitch iframe containing a live video and chat room
+    2.1 This page embeds a twitch iframe containing a live video window and chat room
 
     2.2 The server initiates a web socket, and this page will connect to it
 
