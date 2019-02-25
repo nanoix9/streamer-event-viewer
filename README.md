@@ -8,7 +8,7 @@ open <http://warm-plains-84315.herokuapp.com/> in your browser and do the follow
 
 2. Login with your Twitch account and if succeed, you will be redirected back
 
-3. After redirected, you will be provided a input box to set you favorate streamer's name
+3. After redirected, you will be provided a input box to set you favourite streamer's name
 
 4. Input the streamer's name you want to subscribe, and click the "Add" button
 
@@ -16,10 +16,10 @@ open <http://warm-plains-84315.herokuapp.com/> in your browser and do the follow
 
     Events includes:
 
-        a. user profile change
-        b. new follower
-        c. following other users
-        d. stream change
+    a. user profile change
+    b. new follower
+    c. following other users
+    d. stream change
 
 ## Run locally
 
@@ -27,9 +27,11 @@ open <http://warm-plains-84315.herokuapp.com/> in your browser and do the follow
 
 2. set up environment variables either in command line or put a .env file:
 
-    PORT: port number this application will be listening on
-    CLIENT_ID: your twitch application client ID
-    REDIRECT: your application home url being deployed
+    `PORT`: port number this application will be listening on
+
+    `CLIENT_ID`: your twitch application client ID
+
+    `REDIRECT`: your application home url being deployed
 
 3. `npm start`
 
@@ -56,8 +58,7 @@ This project contains two pages: a home page and a streamer page.
     2.2 The server initiates a web socket, and this page will connect to it
 
     2.3 When server receives an event from Twitch, it will send the event to this page
-        via web socket connect
-
+        via web socket connect.
         Each web socket connection on the server side is attached with a user name
         which indicates the user of which the client is waiting for events. Therefore,
         only events from that user will be send to the client
@@ -73,12 +74,10 @@ This project contains two pages: a home page and a streamer page.
 # Answers for Additional Questions:
 
 1.
-
-    > How would you deploy the above on AWS? (ideally a rough architecture diagram will help)
+> How would you deploy the above on AWS? (ideally a rough architecture diagram will help)
 
 2.
-
-    > Where do you see bottlenecks in your proposed architecture and how would you approach
-    > scaling this app starting from 100 reqs/day to 900MM reqs/day over 6 months?
+> Where do you see bottlenecks in your proposed architecture and how would you approach
+> scaling this app starting from 100 reqs/day to 900MM reqs/day over 6 months?
 
 

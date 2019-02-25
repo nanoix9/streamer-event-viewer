@@ -70,7 +70,7 @@ app.get("/", function(req, res) {
 app.get("/subscribe", function(req, res) {
   _show_req(req);
 
-  const uname = req.query.favorteStreamerName;
+  const uname = req.query.favouriteStreamerName;
   const token = req.query.accessToken;
 
   // first, get user ID
