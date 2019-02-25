@@ -17,8 +17,11 @@ open <http://warm-plains-84315.herokuapp.com/> in your browser and do the follow
     Events includes:
 
     a. user profile change
+
     b. new follower
+
     c. following other users
+
     d. stream change
 
 ## Run locally
@@ -35,7 +38,7 @@ open <http://warm-plains-84315.herokuapp.com/> in your browser and do the follow
 
 3. `npm start`
 
-4. open http://localhost:5000
+4. open http://localhost:$PORT
 
 
 # Design and Implementation Details
@@ -73,11 +76,17 @@ This project contains two pages: a home page and a streamer page.
 
 # Answers for Additional Questions:
 
-1.
-> How would you deploy the above on AWS? (ideally a rough architecture diagram will help)
+> 1. How would you deploy the above on AWS? (ideally a rough architecture diagram will help)
 
-2.
-> Where do you see bottlenecks in your proposed architecture and how would you approach
+
+To be honest, I don't have much experience on AWS. But I think since this is a single Node.js application, 
+it can be easily deployed to AWS by Elastic Beanstalk with just some configuration and commands
+
+> 2. Where do you see bottlenecks in your proposed architecture and how would you approach
 > scaling this app starting from 100 reqs/day to 900MM reqs/day over 6 months?
 
+The bottleneck would be the callback endpoints for Twitch subscription, while rest parts are able to 
+be scaled horizontally. To improve this, a distributed message queue like Kafka should be incorporated serving
+as the callback endpoints, and the server reads the messages from that. The messages can be managed by
+users, i.e. create one Kafka topic for each subscribed user, and the server just subscribe to that topic.
 
